@@ -4,6 +4,7 @@
     <div class="center">
       <div class="time">
         10:00
+        <PButton>Başlat</PButton>
       </div>
     </div>
   </Card>
@@ -11,11 +12,13 @@
 
 <script>
 import Card from "@/components/Card";
+import PButton from "@/components/PButton"
 
 export default {
   name: 'Home',
   components: {
-    Card
+    Card,
+    PButton
   }
 }
 </script>
