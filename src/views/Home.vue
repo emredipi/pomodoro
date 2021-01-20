@@ -2,7 +2,11 @@
   <Card>
     <div slot="header" class="break">MOLA</div>
     <div class="center">
-      <Timer/>
+      <Timer
+          v-if="room && room.hasOwnProperty('settings')"
+          :settings="room.settings"
+          @updatedTimer="isRunning => updateTimer(isRunning)"
+      />
     </div>
   </Card>
 </template>
@@ -10,12 +14,24 @@
 <script>
 import Card from "@/components/Card";
 import Timer from "@/components/Timer";
+import {rtdb} from "@/db/firebase";
 
 export default {
   name: 'Home',
   components: {
     Card,
     Timer
+  },
+  data: () => ({
+    room: null
+  }),
+  firebase: {
+    room: rtdb.ref('rooms').child("1")
+  },
+  methods: {
+    updateTimer(isRunning) {
+      rtdb.ref('rooms').child("1").child("settings").child("isRunning").set(isRunning);
+    }
   },
 }
 </script>

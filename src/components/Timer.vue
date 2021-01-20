@@ -2,7 +2,8 @@
   <div class="time">
     {{ minute }}:{{ second }}
     <PButton @click="resetTimer" v-if="this.time === 0">Reset</PButton>
-    <PButton @click="toggleTimer" v-else>{{ this.timer ? 'Durdur' : 'Başlat' }}</PButton>
+    <PButton @click="$emit('updatedTimer', false);" v-else-if="isRunning">Durdur</PButton>
+    <PButton @click="$emit('updatedTimer', true);" v-else>Başlat</PButton>
   </div>
 </template>
 
@@ -15,30 +16,33 @@ export default {
     PButton
   },
   data: () => ({
-    INITIAL_TIME: 25 * 60,
     time: 0,
-    timer: null
+    timer: null,
   }),
   methods: {
     decreaseTime() {
-      this.time -= 1;
       if (this.time === 0) {
-        this.stopTimer();
+        return this.stopTimer();
       }
-    },
-    toggleTimer() {
-      if (this.timer) {
-        this.stopTimer();
-      } else {
-        this.timer = setInterval(this.decreaseTime, 1000);
-      }
+      this.time -= 1;
     },
     resetTimer() {
-      this.time = this.INITIAL_TIME;
+      const time = this?.settings?.times?.study;
+      this.time = (time ? time : 0) * 60;
+    },
+    startTimer() {
+      this.timer = setInterval(this.decreaseTime, 1000);
     },
     stopTimer() {
       clearInterval(this.timer);
       this.timer = null;
+    },
+    syncTimer() {
+      if (this.isRunning) {
+        this.startTimer();
+      } else {
+        this.stopTimer();
+      }
     }
   },
   computed: {
@@ -51,10 +55,19 @@ export default {
         second = "0" + second;
       }
       return second;
+    },
+    isRunning() {
+      return this.settings.isRunning;
     }
   },
-  mounted() {
-    this.resetTimer();
+  props: ['settings'],
+  watch: {
+    isRunning: {
+      immediate: true,
+      handler: function () {
+        this.syncTimer();
+      }
+    }
   }
 }
 </script>
